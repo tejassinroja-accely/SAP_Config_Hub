@@ -40,15 +40,16 @@ from app.config import llm
 
 # langchain
 from langchain_core.tools import tool
-from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, AIMessage
 
 # langgraph
 from langgraph.graph.message import add_messages
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
+from langgraph.types import Command
 
 # utility
-from typing import Optional, TypedDict, NotRequired, Annotated
+from typing import Optional, TypedDict, NotRequired, Annotated, Literal
 from deepagents.tools import write_todos, WRITE_TODOS_DESCRIPTION, Todo
 import asyncio
 
@@ -450,7 +451,7 @@ class SapConfigHub:
                     logger.error(f'Failed to dispatch SendKeysEvent: {type(e).__name__}: {e}')
                     error_msg = f'Failed to send keys: {str(e)}'
                     return error_msg
-
+    
     # Tools list
 
     def tools_list(self):
@@ -474,10 +475,33 @@ class SapConfigHub:
              
   
         return {"messages": [message]}
+    
+    async def todo_executer(self, state: TaskExecutor):
+         pass
+
     async def call_executor_graph(self,state: AgentState):
          todos = state['todos']
-
          pass
+    async def assign_task(self, state:AgentState)-> Command[Literal["planner", "tools", "call_executor", "__end__"]]:
+         if state['todos'] is None:
+              return Command(
+                   goto="planner",
+                   update={"messages": [AIMessage(content="todos not found")]}
+              )
+         todos = state['todos']
+         system_prompt = """ You are the task manager agent your task is to analyze the current todo list and action taken 
+         based on that update the todo list and 
+         handover the first pending todo in the list for execution
+         This is the current status of the todos and update the status of current todo with write_todos tool
+         {todos}
+
+         usage of todo tool: {WRITE_TODOS_DESCRIPTION}
+         """
+         class TaskAssign(TypedDict):
+              task: Todo
+         response = llm.bind_tools([write_todos]).with_structure_output(TaskAssign)
+
+         
     async def graph_builder(self, AgentState: AgentState):
          builder = StateGraph(AgentState)
          builder.add_node("planner",self.planner)
@@ -509,4 +533,5 @@ class SapConfigHub:
 config = SapConfigHub(company_id=settings.company_id,username=settings.username, password=settings.password)
 import asyncio
 # asyncio.run(config.login_script())
-asyncio.run(config.run_graph(AgentState(messages=[HumanMessage(content="Go to the url of successfactors then put company id then click continue then put username then put password then clikc continue and you are logged in")])))
+result = asyncio.run(config.run_graph(AgentState(messages=[HumanMessage(content="Go to the url of successfactors then put company id then click continue then put username then put password then clikc continue and you are logged in")])))
+print(result)

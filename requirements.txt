@@ -1,3 +1,5 @@
 langchain_openai==0.3.34
 python-dotenv
 browser-use
+deepagents
+langchain

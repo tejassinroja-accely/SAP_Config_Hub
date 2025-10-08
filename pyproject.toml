@@ -15,5 +15,8 @@ dependencies = [
     "requests > 2.26.0",
     "pandas",
     "python-dotenv",
-    "langchain_openai"
+    "langchain_openai",
+    "langchain",
+    "deepagents",
+    "langgraph"
 ]
