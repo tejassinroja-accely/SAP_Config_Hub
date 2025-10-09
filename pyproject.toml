@@ -12,11 +12,18 @@ version = "0.0.1"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "requests > 2.26.0",
+    "requests >= 2.26.0",
     "pandas",
     "python-dotenv",
-    "langchain_openai",
-    "langchain",
+    "pydantic >= 2, < 3",
+    "openai",  # keep latest stable (you currently have 1.109.1)
+    "langchain >= 0.3, < 0.4",
+    "langchain-core >= 0.3, < 0.4",
+    "langchain-openai >= 0.3.34, < 0.4",
+    "langchain-community >= 0.3, < 0.4",
+    "langchain-text-splitters >= 0.3, < 0.4",
+    "langfuse",
+    "langgraph >= 0.6.8",
+    "browser_use",
     "deepagents",
-    "langgraph"
 ]

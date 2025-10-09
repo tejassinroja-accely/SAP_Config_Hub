@@ -11,9 +11,9 @@ load_dotenv()
 llm = AzureChatOpenAI(model="gpt-4.1")
 
 class Settings(BaseModel):
-    company_id: str
-    username: str
-    password: str
+    company_id: str = None
+    username: str= None
+    password: str= None
 
 settings = Settings(
     company_id=os.getenv("company_id"),
